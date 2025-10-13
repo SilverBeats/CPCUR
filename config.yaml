@@ -1,0 +1,94 @@
+# 可选项: atomic, cpcur
+dataset_name: cpcur
+file_paths:
+  atomic:
+    train: data/atomic_zh_train.csv
+    valid: data/atomic_zh_dev.csv
+  cpcur:
+    train: data/train.csv
+    valid: data/dev.csv
+
+evaluate_config:
+  use_nlgeval: true
+  use_bert_score: true
+  user_bart_score: false
+  bert_score_config:
+    model_type: google-bert-zh-base
+    batch_size: 32
+    lang: zh
+    device: cuda:0
+    num_layers: 12
+
+# None: pure plm
+# a: plm fine-tuning on ATOMIC
+# c: plm fine-tuning on CPCUR
+# ac: plm fine-tuning on ATOMIC and CPCUR
+ablation_name: a
+
+# 可选项: bert, gpt2, bart
+model_type: bart
+model_config:
+  bert:
+    name_or_path:
+      none:
+      a:
+    has_mbti: true
+    generation_config:
+      temperature: 1.5
+      top_p: 1.0
+      top_k: 10
+      max_new_tokens: 10
+      do_sample: true
+      num_beams: 1
+  bart:
+    name_or_path:
+      none:
+      a:
+    has_mbti: true
+    generation_config:
+      temperature: 1.5
+      top_p: 1.0
+      top_k: 30
+      max_new_tokens: 10
+      do_sample: true
+      num_beams: 1
+  gpt2:
+    name_or_path:
+      none:
+      a:
+    has_mbti: true
+    generation_config:
+      temperature: 1.5
+      top_p: 1.0
+      top_k: 15
+      max_new_tokens: 10
+      do_sample: true
+      num_beams: 1
+
+training_args:
+  seed: 42
+  train_batch_size: 48
+  eval_batch_size: 48
+  output_dir: output
+  device: "cuda:0"
+  epochs: 30
+  loss_field: loss
+  max_grad_norm: 1.0
+  optimizer_name: adamw
+  optimizer_specific_kwargs:
+    lr: 1e-5
+  lr_scheduler_name: linear
+  warmup_rate: 0.1
+  patient: 2
+  do_eval: true
+  eval_steps: epoch
+  eval_key_label: CIDEr
+  low_is_better: false
+  verbose: true
+  train_log_items: [loss]
+  eval_log_items: [
+    'length', 'dist-1', 'dist-2', 'dist-3', 'dist-4',
+    'bert_score_F', 'Bleu_1', 'Bleu_2', 'Bleu_3', 'Bleu_4',
+    'METEOR', 'ROUGE_L', 'CIDEr', 'nto', 'npo', 'nuo',
+    'hyps', 'refs'
+  ]

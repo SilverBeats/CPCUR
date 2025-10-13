@@ -1,0 +1,8 @@
+git+https://github.com/silverbeats/easy_tools.git
+torch
+bert_score
+jieba
+transformers
+numpy
+pandas
+git+https://github.com/Maluuba/nlg-eval.git@master
